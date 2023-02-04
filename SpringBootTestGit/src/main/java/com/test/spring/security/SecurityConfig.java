@@ -5,7 +5,6 @@ import java.util.EnumSet;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -31,7 +30,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.test.spring.service.SecurityUserDetailsService;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.SessionTrackingMode;
 
 @EnableWebSecurity
@@ -39,16 +37,7 @@ import jakarta.servlet.SessionTrackingMode;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	@Autowired
-	private SecurityUserDetailsService securityUserDetailsService;
-
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private DataSource dataSource;
-
-	public void onStartup(ServletContext servletContext) throws ServletException {
+	public void onStartup(ServletContext servletContext) {
 		// ...
 		servletContext.getSessionCookieConfig().setHttpOnly(true);
 		servletContext.getSessionCookieConfig().setSecure(true);
@@ -56,7 +45,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, SecurityUserDetailsService securityUserDetailsService, PasswordEncoder passwordEncoder, DataSource dataSource) throws Exception {
 
 		httpSecurity
 
@@ -92,12 +81,12 @@ public class SecurityConfig {
 				.and().formLogin().defaultSuccessUrl("/welcome", true)
 
 				.and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).deleteCookies("JSESSIONID")
-				.and().rememberMe().tokenRepository(persistentTokenRepository()).useSecureCookie(true)
+				.and().rememberMe().tokenRepository(persistentTokenRepository(dataSource)).useSecureCookie(true)
 				.tokenValiditySeconds(60 * 60 * 12 * 2 * 7 * 4)
 
 				.and().exceptionHandling().accessDeniedPage("/accessDenied")
 
-				.and().authenticationProvider(authenticationProvider())
+				.and().authenticationProvider(authenticationProvider(securityUserDetailsService, passwordEncoder))
 
 		;
 
@@ -110,7 +99,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public PersistentTokenRepository persistentTokenRepository() {
+	public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
 		var jdbcTokenRepositoryImpl = new JdbcTokenRepositoryImpl();
 		jdbcTokenRepositoryImpl.setDataSource(dataSource);
 		return jdbcTokenRepositoryImpl;
@@ -124,7 +113,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public AuthenticationProvider authenticationProvider() {
+	public AuthenticationProvider authenticationProvider(SecurityUserDetailsService securityUserDetailsService, PasswordEncoder passwordEncoder) {
 		var authenticationProvider = new DaoAuthenticationProvider();
 		authenticationProvider.setUserDetailsService(securityUserDetailsService);
 		authenticationProvider.setPasswordEncoder(passwordEncoder);
