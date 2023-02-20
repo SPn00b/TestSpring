@@ -54,6 +54,17 @@ public class User implements UserDetails {
 	@NotBlank(message = "username cannot be blank")
 	@Size(min = 1, max = 25)
 	private String username;
+	@Column
+	@NotBlank(message = "username cannot be blank")
+	private String RandomString;
+
+	public String getRandomString() {
+		return RandomString;
+	}
+
+	public void setRandomString(String randomString) {
+		RandomString = randomString;
+	}
 
 	public List<String> getRoles() {
 		return roles;

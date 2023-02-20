@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import com.test.spring.pojo.User;
 import com.test.spring.repository.UserRepository;
 
+import net.bytebuddy.utility.RandomString;
+
 @Configuration
 public class UserAddCommandLineRunner {
 
@@ -29,6 +31,8 @@ public class UserAddCommandLineRunner {
                 user.setRoles(role);
                 user.setUsername("Test User");
                 user.setAccountNonLocked(true);
+                RandomString randomString = new RandomString(25);
+                user.setRandomString(randomString.nextString());
                 userRepository.save(user);
             }
         };
