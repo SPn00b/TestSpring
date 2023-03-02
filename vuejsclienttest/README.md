@@ -1,4 +1,4 @@
-# nodetestclientapp
+# vuejsclienttest
 
 ## Project setup
 ```
