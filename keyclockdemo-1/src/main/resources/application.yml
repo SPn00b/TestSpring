@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: Spring 3 and Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/Spring_Realm
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+      #client:
+        #provider: 
+          #keycloak: 
+            #issuer-uri: http://localhost:8080/realms/Spring_Realm
+            #authorization-uri: http://localhost:8080/realms/Spring_Realm/protocol/openid-connect/auth
+            #token-uri: http://localhost:8080/realms/Spring_Realm/protocol/openid-connect/token
+            #user-info-uri: http://localhost:8080/realms/Spring_Realm/protocol/openid-connect/userinfo
+            #user-name-attribute: preferred_username #sub
+            #jwk-set-uri: http://localhost:8080/realms/Spring_Realm/protocol/openid-connect/certs
+        #registration: 
+          #keycloak: 
+            #client-id: test
+            #client-secret: TYkIxuN1y8pkssAaG9hWia50W8yGJog3
+            #scope: openid
+            #authorization-grant-type: password
+            #authorization-grant-type: authorization_code
+            #authorization-grant-type: 
+            
+server:
+  port: 8081
+  
+
+jwt:
+  auth:
+    converter:
+      resource-id: test
+      principle-attribute: preferred_username
